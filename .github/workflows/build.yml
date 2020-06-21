@@ -10,6 +10,9 @@ on:
       - master
   pull_request:
 
+env:
+  PUBLISH_SOURCES: 'true'
+
 # FIXME: make this a matrix build (macos/windows x different jdks)
 
 jobs:
@@ -28,8 +31,6 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-    env:
-      PUBLISH_SOURCES: true
     - name: '🔨 Maven (build, test)'
       run: scripts/test-unit.sh
     - name: '🔨 Maven (site)'
