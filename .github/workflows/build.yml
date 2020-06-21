@@ -28,7 +28,61 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
+    env:
+      PUBLISH_SOURCES: true
     - name: '🔨 Maven (build, test)'
       run: scripts/test-unit.sh
     - name: '🔨 Maven (site)'
       run: scripts/mvn-site.sh
+    - name: '🔨 Maven (aggregate sources)'
+      run: scripts/mvn-aggregate-srcs.sh
+# needs update for github:
+#      run: scripts/preparare-deploy-source-code.sh
+    - name: 'Send coverage'
+        scripts/send-code-coverage.sh
+
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: '📝 Regression tests'
+      run: |
+        scripts/mvn-install-fastbuild.sh jflex-maven-plugin,testsuite/jflex-testsuite-maven-plugin
+        scripts/test-regression.sh
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        # FIXME: make matrix
+        java-version: 1.8
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: '😎 Examples (mvn, ant, make)'
+      run: scripts/test-examples.sh
+
+  docs:
+    - uses: actions/checkout@v2
+    - name: 'Install LaTeX and pandoc'
+      run: |
+        sudo apt-get install \
+             pandoc pandoc-citeproc texlive texlive-latex-extra lmodern
+    - name: "📄 Documentation"
+      run: cd docs; make
