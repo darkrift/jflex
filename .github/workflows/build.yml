@@ -40,9 +40,10 @@ jobs:
 # needs update for github:
 #      run: scripts/preparare-deploy-source-code.sh
     - name: 'Send coverage'
-        scripts/send-code-coverage.sh
+      run: scripts/send-code-coverage.sh
 
   regression:
+    name: 'Regression Test'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -62,6 +63,7 @@ jobs:
         scripts/test-regression.sh
 
   examples:
+    name: 'Examples'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -80,6 +82,9 @@ jobs:
       run: scripts/test-examples.sh
 
   docs:
+    name: 'Docs'
+    runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v2
     - name: 'Install LaTeX and pandoc'
       run: |
